@@ -1,9 +1,9 @@
 notebooks:
-    - rl_cartpole_coach/rl_cartpole_coach_gymEnv.ipynb
+#     - rl_cartpole_coach/rl_cartpole_coach_gymEnv.ipynb
     - rl_cartpole_ray/rl_cartpole_ray_gymEnv.ipynb
-    - rl_roboschool_ray/rl_roboschool_ray.ipynb
-    - rl_roboschool_ray/rl_roboschool_ray_distributed.ipynb
-    - rl_roboschool_ray/rl_roboschool_ray_automatic_model_tuning.ipynb
+#     - rl_roboschool_ray/rl_roboschool_ray.ipynb
+#     - rl_roboschool_ray/rl_roboschool_ray_distributed.ipynb
+#     - rl_roboschool_ray/rl_roboschool_ray_automatic_model_tuning.ipynb
 
 configs:
     rl_cartpole_coach/rl_cartpole_coach_gymEnv.ipynb: testconfig.yml
