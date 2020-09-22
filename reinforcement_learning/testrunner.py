@@ -51,6 +51,7 @@ def run_notebook(nb_path, config_file_name):
     nb_name = os.path.basename(nb_path)
     output_nb_name = "output_{}.ipynb".format(time.time())
     os.chdir(dir_name)
+    print("Current directory: {}".format(os.getcwd()))
     nb_test_config = load_yaml(config_file_name)
     global SUCCESSES
     global EXCEPTIONS
@@ -110,15 +111,8 @@ for nb in test_notebooks_list:
 # In[ ]:
 
 
-print("Summary: {}/{} tests passed.".format(SUCCESSES, SUCCESSES + EXCEPTIONS))    
+print("Summary: {}/{} tests passed.".format(SUCCESSES, SUCCESSES + EXCEPTIONS))
 print("Successful executions: ")
 print_notebook_executions(SUCCESSFUL_EXECUTIONS)
 print("Failed executions: ")
 print_notebook_executions(FAILED_EXECUTIONS)
-
-
-# In[ ]:
-
-
-
-
