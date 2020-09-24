@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 import itertools
@@ -16,7 +16,7 @@ import time
 import yaml
 
 
-# In[2]:
+# In[ ]:
 
 
 # CONSTANTS
@@ -28,7 +28,7 @@ FAILED_EXECUTIONS = []
 CELL_EXECUTION_TIMEOUT_SECONDS = 1200
 
 
-# In[4]:
+# In[ ]:
 
 
 # helper functions
@@ -58,20 +58,21 @@ def run_notebook(nb_path, config_file_name):
     global EXCEPTIONS
     for params in get_param_combinations(nb_test_config):        
         print("Executing: " + nb_name + " with parameters " + str(params))
+        process = None
         try:
-            process = subprocess.run(['papermill', '--execution-timeout', str(CELL_EXECUTION_TIMEOUT_SECONDS), nb_name, output_nb_name],
-                     capture_output=True, check=True)
-            output = process.stdout
-            output = output.replace('\r', '\n')
-            print(output)
-#             papermill.execute_notebook(nb_name, output_nb_name, parameters=params, execution_timeout=CELL_EXECUTION_TIMEOUT_SECONDS, log_output=True)
+#             process = subprocess.run(['papermill', '--execution-timeout', str(CELL_EXECUTION_TIMEOUT_SECONDS), nb_name, output_nb_name],
+#                      capture_output=True, check=True)
+#             output = process.stdout
+#             output = output.replace('\r', '\n')
+#             print(output)
+            papermill.execute_notebook(nb_name, output_nb_name, parameters=params, execution_timeout=CELL_EXECUTION_TIMEOUT_SECONDS, log_output=True)
             SUCCESSES += 1
             SUCCESSFUL_EXECUTIONS.append(dict({'notebook':nb_name, 'params':params}))
         except BaseException as error:
             print('An exception occurred: {}'.format(error))
-            error = process.stderr
-            error = error.replace('\r', '\n')
-            print(error)
+#             error = process.stderr
+#             error = error.replace('\r', '\n')
+#             print(error)
             EXCEPTIONS += 1
             FAILED_EXECUTIONS.append(dict({'notebook':nb_name, 'params':params}))
 
@@ -91,20 +92,20 @@ def print_notebook_executions(nb_list_with_params):
     print(tabulate(pd.DataFrame([v for v in vals], columns=keys), showindex=False))
 
 
-# In[5]:
+# In[ ]:
 
 
 main_config = load_yaml(NOTEBOOKS_LIST_CONFIG_FILE)
 print(main_config)
 
 
-# In[6]:
+# In[ ]:
 
 
 test_notebooks_list = main_config['notebooks']
 
 
-# In[7]:
+# In[ ]:
 
 
 ROOT = os.path.abspath('.')
