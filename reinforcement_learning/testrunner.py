@@ -60,19 +60,19 @@ def run_notebook(nb_path, config_file_name):
         print("Executing: " + nb_name + " with parameters " + str(params))
         process = None
         try:
-#             process = subprocess.run(['papermill', '--execution-timeout', str(CELL_EXECUTION_TIMEOUT_SECONDS), nb_name, output_nb_name],
-#                      capture_output=True, check=True)
-#             output = process.stdout
-#             output = output.replace('\r', '\n')
-#             print(output)
-            papermill.execute_notebook(nb_name, output_nb_name, parameters=params, execution_timeout=CELL_EXECUTION_TIMEOUT_SECONDS, log_output=True)
+            process = subprocess.run(['papermill', '--execution-timeout', str(CELL_EXECUTION_TIMEOUT_SECONDS), nb_name, output_nb_name],
+                     capture_output=True, check=True)
+            output = process.stdout
+            output = output.replace('\r', '\n')
+            print(output)
+#             papermill.execute_notebook(nb_name, output_nb_name, parameters=params, execution_timeout=CELL_EXECUTION_TIMEOUT_SECONDS, log_output=True)
             SUCCESSES += 1
             SUCCESSFUL_EXECUTIONS.append(dict({'notebook':nb_name, 'params':params}))
         except BaseException as error:
             print('An exception occurred: {}'.format(error))
-#             error = process.stderr
-#             error = error.replace('\r', '\n')
-#             print(error)
+            error = process.stderr
+            error = error.replace('\r', '\n')
+            print(error)
             EXCEPTIONS += 1
             FAILED_EXECUTIONS.append(dict({'notebook':nb_name, 'params':params}))
 
