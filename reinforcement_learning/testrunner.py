@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 import itertools
@@ -9,13 +9,14 @@ import json
 import os
 import pandas as pd
 import papermill
+import subprocess
 import sys
 from tabulate import tabulate
 import time
 import yaml
 
 
-# In[ ]:
+# In[2]:
 
 
 # CONSTANTS
@@ -24,10 +25,10 @@ SUCCESSES = 0
 EXCEPTIONS = 0
 SUCCESSFUL_EXECUTIONS = []
 FAILED_EXECUTIONS = []
-CELL_EXECUTION_TIMEOUT_SECONDS = 600
+CELL_EXECUTION_TIMEOUT_SECONDS = 1200
 
 
-# In[ ]:
+# In[4]:
 
 
 # helper functions
@@ -58,11 +59,19 @@ def run_notebook(nb_path, config_file_name):
     for params in get_param_combinations(nb_test_config):        
         print("Executing: " + nb_name + " with parameters " + str(params))
         try:
-            papermill.execute_notebook(nb_name, output_nb_name, parameters=params, execution_timeout=CELL_EXECUTION_TIMEOUT_SECONDS)
+            process = subprocess.run(['papermill', '--execution-timeout', str(CELL_EXECUTION_TIMEOUT_SECONDS), nb_name, output_nb_name],
+                     capture_output=True, check=True)
+            output = process.stdout
+            output = output.replace('\r', '\n')
+            print(output)
+#             papermill.execute_notebook(nb_name, output_nb_name, parameters=params, execution_timeout=CELL_EXECUTION_TIMEOUT_SECONDS, log_output=True)
             SUCCESSES += 1
             SUCCESSFUL_EXECUTIONS.append(dict({'notebook':nb_name, 'params':params}))
         except BaseException as error:
             print('An exception occurred: {}'.format(error))
+            error = process.stderr
+            error = error.replace('\r', '\n')
+            print(error)
             EXCEPTIONS += 1
             FAILED_EXECUTIONS.append(dict({'notebook':nb_name, 'params':params}))
 
@@ -82,20 +91,20 @@ def print_notebook_executions(nb_list_with_params):
     print(tabulate(pd.DataFrame([v for v in vals], columns=keys), showindex=False))
 
 
-# In[ ]:
+# In[5]:
 
 
 main_config = load_yaml(NOTEBOOKS_LIST_CONFIG_FILE)
 print(main_config)
 
 
-# In[ ]:
+# In[6]:
 
 
 test_notebooks_list = main_config['notebooks']
 
 
-# In[ ]:
+# In[7]:
 
 
 ROOT = os.path.abspath('.')
@@ -114,5 +123,19 @@ for nb in test_notebooks_list:
 print("Summary: {}/{} tests passed.".format(SUCCESSES, SUCCESSES + EXCEPTIONS))
 print("Successful executions: ")
 print_notebook_executions(SUCCESSFUL_EXECUTIONS)
-print("Failed executions: ")
-print_notebook_executions(FAILED_EXECUTIONS)
+
+
+# In[ ]:
+
+
+if EXCEPTIONS > 0:
+    print("Failed executions: ")
+    print_notebook_executions(FAILED_EXECUTIONS)
+    raise Exception("Test did not complete successfully")
+
+
+# In[ ]:
+
+
+
+
