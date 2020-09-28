@@ -4,4 +4,4 @@ train_instance_count:
     
 instance_type:
     - ml.m4.xlarge
-    - lol
+    - ml.p3.2xlarge
