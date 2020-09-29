@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
-
 import itertools
 import json
 import os
@@ -16,9 +13,6 @@ import time
 import yaml
 
 
-# In[ ]:
-
-
 # CONSTANTS
 NOTEBOOKS_LIST_CONFIG_FILE = 'testnotebooks.yml'
 SUCCESSES = 0
@@ -26,9 +20,6 @@ EXCEPTIONS = 0
 SUCCESSFUL_EXECUTIONS = []
 FAILED_EXECUTIONS = []
 CELL_EXECUTION_TIMEOUT_SECONDS = 1200
-
-
-# In[ ]:
 
 
 # helper functions
@@ -56,7 +47,7 @@ def run_notebook(nb_path, config_file_name):
     nb_test_config = load_yaml(config_file_name)
     global SUCCESSES
     global EXCEPTIONS
-    for params in get_param_combinations(nb_test_config):        
+    for params in get_param_combinations(nb_test_config):
         print("\nTEST: " + nb_name + " with parameters " + str(params))
         process = None
         try:
@@ -84,24 +75,13 @@ def print_notebook_executions(nb_list_with_params):
     print(tabulate(pd.DataFrame([v for v in vals], columns=keys), showindex=False))
 
 
-# In[ ]:
 
 
 main_config = load_yaml(NOTEBOOKS_LIST_CONFIG_FILE)
-print(main_config)
-
-
-# In[ ]:
-
-
 test_notebooks_list = main_config['notebooks']
-
-
-# In[ ]:
-
-
 ROOT = os.path.abspath('.')
 
+# Run tests on each notebook listed in the config.
 for nb in test_notebooks_list:
     os.chdir(ROOT)
     print("Testing: {}".format(nb))
@@ -109,26 +89,13 @@ for nb in test_notebooks_list:
     print("Config file: {}".format(config_file_name))
     run_notebook(nb, config_file_name)
 
-
-# In[ ]:
-
-
+# Print summary of tests ran.
 print("Summary: {}/{} tests passed.".format(SUCCESSES, SUCCESSES + EXCEPTIONS))
 print("Successful executions: ")
 print_notebook_executions(SUCCESSFUL_EXECUTIONS)
 
-
-# In[ ]:
-
-
+# Throw exception if any test fails, so that the CodeBuild also fails.
 if EXCEPTIONS > 0:
     print("Failed executions: ")
     print_notebook_executions(FAILED_EXECUTIONS)
     raise Exception("Test did not complete successfully")
-
-
-# In[ ]:
-
-
-
-
