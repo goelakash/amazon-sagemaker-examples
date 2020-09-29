@@ -57,22 +57,14 @@ def run_notebook(nb_path, config_file_name):
     global SUCCESSES
     global EXCEPTIONS
     for params in get_param_combinations(nb_test_config):        
-        print("Executing: " + nb_name + " with parameters " + str(params))
+        print("\nTEST: " + nb_name + " with parameters " + str(params))
         process = None
         try:
-#             process = subprocess.run(['papermill', '--execution-timeout', str(CELL_EXECUTION_TIMEOUT_SECONDS), nb_name, output_nb_name],
-#                      capture_output=True, check=True)
-#             output = str(process.stdout)
-#             output = output.replace('\r', '\n')
-#             print(output)
             papermill.execute_notebook(nb_name, output_nb_name, parameters=params, execution_timeout=CELL_EXECUTION_TIMEOUT_SECONDS, log_output=True)
             SUCCESSES += 1
             SUCCESSFUL_EXECUTIONS.append(dict({'notebook':nb_name, 'params':params}))
         except BaseException as error:
             print('An exception occurred: {}'.format(error))
-#             error = str(process.stderr)
-#             error = error.replace('\r', '\n')
-#             print(error)
             EXCEPTIONS += 1
             FAILED_EXECUTIONS.append(dict({'notebook':nb_name, 'params':params}))
 
