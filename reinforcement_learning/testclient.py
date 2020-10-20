@@ -28,7 +28,7 @@ def run_ec2_server():
     new_instance = ec2.create_instances(
         ImageId=UBUNTU_AMI,
         InstanceType=TEST_INSTANCE_TYPE,
-        UserData=USER_DATA,
+        # UserData=USER_DATA,
         MinCount=1,
         MaxCount=1,
         KeyName=KEY_PAIR_NAME,
@@ -43,8 +43,6 @@ def run_ec2_server():
     instance.wait_until_running()
     instance.load()
     return instance
-
-
 
 def print_notebook_executions(nb_list_with_params):
     # This expects a list of dict type items.
@@ -78,13 +76,12 @@ if __name__=="__main__":
             response = requests.get(curl_url).json()
             print(response)
             status = response['status']
-
+    instance.terminate_instances()
     passed = response['successful_executions']
     failures = response['failed_executions']
 
 
     # Print summary of tests ran.
-
     print("Summary: {}/{} tests passed.".format(len(passed), len(passed) + len(failures)))
     print("Successful executions: ")
     print_notebook_executions(json.loads(passed))
