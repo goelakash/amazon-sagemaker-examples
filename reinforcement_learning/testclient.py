@@ -63,6 +63,8 @@ if __name__=="__main__":
     # Initialize EC2 server for running the tests
     print("Initializing EC2 server for running the tests...")
     instance = run_ec2_server()
+    print("Waiting 5 minutes for the server to initialize")
+    sleep(300)
     #Check if testing is done
     # (TODO: Move post number to env variables.)
     curl_url = "http://{0}:5000/results".format(instance.public_dns_name)
