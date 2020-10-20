@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-from datetime import datetime
-startTime = datetime.now()
-
-from flask import Flask, jsonify
 import itertools
 import json
 import multiprocessing as mp
@@ -11,6 +7,7 @@ import os
 import sys
 import time
 try:
+    from flask import Flask, jsonify
     import pandas as pd
     import papermill
     from tabulate import tabulate
@@ -33,6 +30,15 @@ main_process = None
 
 # helper functions
 
+def get_kernel_name(nb_path):
+    DEFAULT_KERNEL = "python3"
+    nb_json = json.load(open(nb_path))
+    try:
+        return nb_json['metadata']['kernelspec']['name']
+    except KeyError:
+        return DEFAULT_KERNEL
+
+
 def execute_nb_with_params(nb_path, params):
     abs_nb_dir_path = os.path.join(ROOT, os.path.dirname(nb_path))
     nb_name = os.path.basename(nb_path)
@@ -42,8 +48,9 @@ def execute_nb_with_params(nb_path, params):
     print("RUN: " + nb_name + " with parameters " + str(params))
     # Execute notebook
     test_case = dict({'notebook':nb_name, 'params':params})
+    kernel_name = get_kernel_name(nb_path)
     try:
-        papermill.execute_notebook(nb_name, output_nb_name, parameters=params, execution_timeout=CELL_EXECUTION_TIMEOUT_SECONDS, log_output=True)
+        papermill.execute_notebook(nb_name, output_nb_name, parameters=params, execution_timeout=CELL_EXECUTION_TIMEOUT_SECONDS, log_output=True, kernel_name=kernel_name)
         SUCCESSES.value += 1
         SUCCESSFUL_EXECUTIONS.append(test_case)
     except BaseException as error:
@@ -80,29 +87,23 @@ def run_tests():
     for job in jobs:
         job.join()
 
-from flask import Flask
-app = Flask("test_app")
 
+app = Flask("test_app")
 
 @app.route('/results')
 def get_results():
     if main_process.is_alive():
         return jsonify({"status": "running"})
-    time_taken = datetime.now() - startTime
-    print("Time taken")
-    print(time_taken)
     return jsonify({
         "status": "complete",
-        "success_runs": list(SUCCESSFUL_EXECUTIONS),
-        "failed_runs": list(FAILED_EXECUTIONS),
-        "time": str(time_taken)
+        "successful_runs": list(SUCCESSFUL_EXECUTIONS),
+        "failed_runs": list(FAILED_EXECUTIONS)
     })
 
 
 @app.route('/')
 def landing_page():
     return "Server up"
-
 
 if __name__=="__main__":
     main_process = mp.Process(target=run_tests)
