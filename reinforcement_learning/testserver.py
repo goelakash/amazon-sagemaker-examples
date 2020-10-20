@@ -3,6 +3,7 @@
 from datetime import datetime
 startTime = datetime.now()
 
+from flask import Flask, jsonify
 import itertools
 import json
 import multiprocessing as mp
@@ -28,7 +29,7 @@ CELL_EXECUTION_TIMEOUT_SECONDS = 1200
 ROOT = os.path.abspath('.')
 
 jobs = []
-
+main_process = None
 
 # helper functions
 
@@ -64,30 +65,14 @@ def test_notebook(nb_path, df_test_config):
         p.start()
 
 
-
-def print_notebook_executions(nb_list_with_params):
-    # This expects a list of dict type items.
-    # E.g. [{'nb_name':'foo', 'params':'bar'}]
-    if not nb_list_with_params:
-        print("None")
-        return
-    vals = []
-    for nb_dict in nb_list_with_params:
-        val = []
-        for k,v in nb_dict.items():
-            val.append(v)
-        vals.append(val)
-    keys = [k for k in nb_list_with_params[0].keys()]
-    print(tabulate(pd.DataFrame([v for v in vals], columns=keys), showindex=False))
-
-
-if __name__ == "__main__":
+def run_tests():
     notebooks_list = open(TEST_NOTEBOOKS_FILE).readlines()
     config = pd.read_csv(TEST_CONFIG_FILE)
     # Run tests on each notebook listed in the config.
     print("Test Configuration: ")
     print(config)
 
+    print("App runnning")
     for nb_path in notebooks_list:
         print("Testing: {}".format(nb_path))
         test_notebook(nb_path.strip(), config)
@@ -95,16 +80,31 @@ if __name__ == "__main__":
     for job in jobs:
         job.join()
 
-    # Print summary of tests ran.
-    print("Summary: {}/{} tests passed.".format(SUCCESSES.value, SUCCESSES.value + EXCEPTIONS.value))
-    print("Successful executions: ")
-    print_notebook_executions(SUCCESSFUL_EXECUTIONS)
+from flask import Flask
+app = Flask("test_app")
 
-    # Throw exception if any test fails, so that the CodeBuild also fails.
-    if EXCEPTIONS.value > 0:
-        print("Failed executions: ")
-        print_notebook_executions(FAILED_EXECUTIONS)
-        raise Exception("Test did not complete successfully")
 
-print("Total time taken for tests: ")
-print(datetime.now() - startTime)
+@app.route('/results')
+def get_results():
+    if main_process.is_alive():
+        return jsonify({"status": "running"})
+    time_taken = datetime.now() - startTime
+    print("Time taken")
+    print(time_taken)
+    return jsonify({
+        "status": "complete",
+        "success_runs": list(SUCCESSFUL_EXECUTIONS),
+        "failed_runs": list(FAILED_EXECUTIONS),
+        "time": str(time_taken)
+    })
+
+
+@app.route('/')
+def landing_page():
+    return "Server up"
+
+
+if __name__=="__main__":
+    main_process = mp.Process(target=run_tests)
+    main_process.start()
+    app.run(debug=True, use_reloader=False)
