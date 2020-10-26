@@ -39,10 +39,10 @@ class MyLauncher(SageMakerRayLauncher):
             "checkpoint_freq" : 1,
             "config": {
               "num_workers": max(self.num_total_gpus-1, 1),
-              "use_gpu_for_workers": True,
+              "num_gpus_per_worker": 1,
               "train_batch_size": 5,
               "sample_batch_size": 1,
-              "gpu_fraction": 0.3,
+              "num_gpus": 0.3,
               "optimizer": {
                 "grads_per_step": 10
               },
