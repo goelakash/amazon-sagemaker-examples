@@ -31,6 +31,10 @@ def export_tf_serving(agent, output_dir):
     else:
         tf = import_tf1()
         policy = agent.local_evaluator.policy_map["default"]
+        print("########## Printing policy details ###############")
+        print(type(policy))
+        print(dir(policy))
+        print("########## Done ############")
         input_signature = {}
         input_signature["observations"] = tf.saved_model.utils.build_tensor_info(policy.observations)
 
