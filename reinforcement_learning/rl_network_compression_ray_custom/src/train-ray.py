@@ -47,7 +47,7 @@ class MyLauncher(SageMakerRayLauncher):
                 "grads_per_step": 10
               },
             },
-            "trial_resources": {"cpu": 0, "gpu": 1, "extra_gpu": max(self.num_total_gpus-1, 1), "extra_cpu": 0},
+            "resources_per_trial": {"cpu": 0, "gpu": 1, "extra_gpu": max(self.num_total_gpus-1, 1), "extra_cpu": 0},
           }
         }
 
