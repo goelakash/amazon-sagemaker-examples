@@ -20,6 +20,7 @@ INTERMEDIATE_DIR = "/opt/ml/output/intermediate"
 CHECKPOINT_DIR = "/opt/ml/input/data/checkpoint"
 MODEL_OUTPUT_DIR = "/opt/ml/model"
 
+import inspect
 
 class Cluster(Enum):
     """
@@ -207,6 +208,9 @@ class SageMakerRayLauncher(object):
 
         for source_path in latest_checkpoints:
             _, ext = os.path.splitext(source_path)
+            print("Function: ")
+            print(inspect.stack()[0][3])
+            print("MODEL_OUTPUT_DIR: " + MODEL_OUTPUT_DIR)
             destination_path = os.path.join(MODEL_OUTPUT_DIR, "checkpoint%s" % ext)
             copyfile(source_path, destination_path)
             print("Saved the checkpoint file %s as %s" % (source_path, destination_path))
@@ -221,6 +225,9 @@ class SageMakerRayLauncher(object):
                     if filename == "params.json":
                         source = os.path.join(root, filename)
                         config_found = True
+        print("Function: ")
+        print(inspect.stack()[0][3])
+        print("MODEL_OUTPUT_DIR: " + MODEL_OUTPUT_DIR)
         copyfile(source, os.path.join(MODEL_OUTPUT_DIR, "params.json"))
         print("Saved model configuration.")
 
@@ -238,6 +245,9 @@ class SageMakerRayLauncher(object):
         config["num_workers"] = 1
         config["num_gpus"] = 0
         agent = cls(env=env_string, config=config)
+        print("Function: ")
+        print(inspect.stack()[0][3])
+        print("MODEL_OUTPUT_DIR: " + MODEL_OUTPUT_DIR)
         checkpoint = os.path.join(MODEL_OUTPUT_DIR, "checkpoint")
         agent.restore(checkpoint)
         export_tf_serving(agent, MODEL_OUTPUT_DIR)

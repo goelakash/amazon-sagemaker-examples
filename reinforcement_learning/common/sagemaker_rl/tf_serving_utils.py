@@ -26,9 +26,15 @@ def change_permissions_recursive(path, mode):
 
 
 def export_tf_serving(agent, output_dir):
+    print("Function: ")
+    print(inspect.stack()[0][3])
     if ray.__version__ >= "0.8.2":
+        print("Branch 1")
+        print("output_dir")
+        print(os.path.join(output_dir, "1"))
         agent.export_policy_model(os.path.join(output_dir, "1"))
     else:
+        print("Branch 2")
         tf = import_tf1()
         policy = agent.local_evaluator.policy_map["default"]
         input_signature = {}
