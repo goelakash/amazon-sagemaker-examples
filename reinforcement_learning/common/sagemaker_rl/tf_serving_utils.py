@@ -3,6 +3,8 @@ import os
 import re
 import tensorflow
 
+import inspect
+
 def import_tf1():
     if "2." in tensorflow.__version__[:2]:
         return tensorflow.compat.v1
